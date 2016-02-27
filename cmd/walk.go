@@ -26,13 +26,12 @@ import (
 // walkCmd represents the walk command
 var walkCmd = &cobra.Command{
 	Use:   "walk",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Walk is used to iterate through an OID tree",
+	Long: `The walk command  performs a whole series of getnexts automatically
+for you, and stops when it returns results that are no longer inside the range
+of the OID which you originally specified. If you wanted to get all of the
+information stored on a machine in the system MIB group, for instance, you
+could use this command to do so. This will be slower than a bulk walk though.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if oid == "" {
 			log.Fatal("Please provide an OID to retrieve")
