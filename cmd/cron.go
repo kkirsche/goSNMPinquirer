@@ -22,9 +22,10 @@ import (
 var cronCmd = &cobra.Command{
 	Use:   "cron",
 	Short: "cron allows for tasks to be programmed with times",
-	Long: `cron should be used by with the operating system's cron tool to
-execute a pre-programmed job via SNMP. This command loads from the config file
-only and does not accept the command line arguments`,
+	Long: `The cron command should be used by with the operating system's cron tool
+to execute a pre-programmed job via SNMP. This command loads from the config file
+(by default located at $HOME/.inquirer.json) only and does not accept command
+line arguments except for IP and Community String`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

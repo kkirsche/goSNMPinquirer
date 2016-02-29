@@ -29,7 +29,10 @@ var dayCmd = &cobra.Command{
 	Use:   "day",
 	Short: "execute the cron job. For use once per day",
 	Long: `A job which should be executed once per day. With crontab, this would
-be executed using either the @daily string or the crontab definition "0 0	* * *"`,
+be executed using either the @daily string or the crontab definition "0 0	* * *".
+This command loads from the config file (by default located at
+$HOME/.inquirer.json) only and does not accept command line arguments except for
+IP and Community String`,
 	Run: func(cmd *cobra.Command, args []string) {
 		snmp, err := gosnmp.Connect(viper.GetString("ip"), viper.GetString("community"), gosnmp.Version2c, 50)
 		if err != nil {
