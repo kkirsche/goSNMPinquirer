@@ -15,8 +15,9 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/kkirsche/gosnmp"
@@ -39,6 +40,17 @@ IP and Community String`,
 			log.Fatal(err.Error())
 		}
 
+		saveMethod = strings.ToLower(viper.GetString("cron.save_via"))
+		if saveMethod == "file" {
+			savePath := viper.GetString("cron.save_file")
+			if savePath != "" {
+				file, err = os.Create(savePath)
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+			}
+		}
+
 		var hostname string
 
 		getValues := viper.GetStringSlice("cron.day.get")
@@ -48,17 +60,18 @@ IP and Community String`,
 				log.Fatal(err.Error())
 			}
 
-			fmt.Print(time.Now().UTC().Format(time.RFC3339Nano))
-			fmt.Print(",", snmp.Target)
+			writeToOutputMethod(time.Now().UTC().Format(time.RFC3339Nano))
+			writeToOutputMethod(",", snmp.Target)
 			if hostname != "" {
-				fmt.Print(",", hostname)
+				writeToOutputMethod(",", hostname)
 			}
 
 			for _, variable := range pdu.Variables {
-				fmt.Print(",", variable.Name)
-				fmt.Print(",", variable.Value)
+				writeToOutputMethod(",", variable.Name)
+				writeToOutputMethod(",", variable.Value)
 			}
-			fmt.Print("\n")
+
+			writeToOutputMethod("\n")
 
 			if oid == ".1.3.6.1.2.1.1.5.0" {
 				hostname = pdu.Variables[0].Value.(string)
@@ -72,22 +85,21 @@ IP and Community String`,
 				log.Fatal(err.Error())
 			}
 
-			fmt.Print(time.Now().UTC().Format(time.RFC3339Nano))
-			fmt.Print(",", snmp.Target)
+			writeToOutputMethod(time.Now().UTC().Format(time.RFC3339Nano))
+			writeToOutputMethod(",", snmp.Target)
 			if hostname != "" {
-				fmt.Print(",", hostname)
+				writeToOutputMethod(",", hostname)
 			}
 
 			for _, pdu := range pdu.Variables {
-				fmt.Print(",", pdu.Name)
-				fmt.Print(",", pdu.Value)
+				writeToOutputMethod(",", pdu.Name)
+				writeToOutputMethod(",", pdu.Value)
 			}
-			fmt.Print("\n")
+			writeToOutputMethod("\n")
 		}
 
 		bulkwalkValues := viper.GetStringSlice("cron.day.bulkwalk")
 		results := make(map[string][]gosnmp.SnmpPDU)
-		lastOID := ""
 		for _, oid := range bulkwalkValues {
 			pdus, err := snmp.BulkWalk(100, oid)
 			if err != nil {
@@ -95,25 +107,31 @@ IP and Community String`,
 			}
 
 			results[oid] = pdus
-			lastOID = oid
 		}
 
-		lengthOfValues := len(results[lastOID]) - 1
+		var lengthOfValues int
+		for _, value := range results {
+			currentOIDLength := len(value)
+			if currentOIDLength > lengthOfValues {
+				lengthOfValues = currentOIDLength
+			}
+		}
+
 		for i := 0; i < lengthOfValues; i++ {
-			fmt.Print(time.Now().UTC().Format(time.RFC3339Nano))
-			fmt.Print(",", snmp.Target)
+			writeToOutputMethod(time.Now().UTC().Format(time.RFC3339Nano))
+			writeToOutputMethod(",", snmp.Target)
 			if hostname != "" {
-				fmt.Print(",", hostname)
+				writeToOutputMethod(",", hostname)
 			}
 			for _, oid := range bulkwalkValues {
 				oidLength := len(results[oid]) - 1
 				if oidLength >= i {
 					pdu := results[oid][i]
-					fmt.Print(",", pdu.Name)
-					fmt.Print(",", pdu.Value)
+					writeToOutputMethod(",", pdu.Name)
+					writeToOutputMethod(",", pdu.Value)
 				}
 			}
-			fmt.Print("\n")
+			writeToOutputMethod("\n")
 		}
 	},
 }
@@ -130,5 +148,4 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// dayCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

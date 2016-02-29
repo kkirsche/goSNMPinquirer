@@ -24,6 +24,8 @@ import (
 
 var cfgFile string
 var oid string
+var saveMethod string
+var file *os.File
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -73,9 +75,21 @@ func initConfig() {
 	viper.BindPFlag("ip", RootCmd.Flags().Lookup("ip"))
 	viper.BindPFlag("community", RootCmd.Flags().Lookup("community"))
 
+	viper.SetDefault("cron.save_via", "stdout")
+	viper.SetDefault("cron.save_file", "")
+
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		viper.WatchConfig()
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+}
+
+func writeToOutputMethod(v ...interface{}) {
+	switch saveMethod {
+	case "stdout":
+		fmt.Print(v...)
+	case "file":
+		fmt.Fprint(file, v...)
 	}
 }
