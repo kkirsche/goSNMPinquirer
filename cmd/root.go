@@ -23,8 +23,6 @@ import (
 )
 
 var cfgFile string
-var remoteIP string
-var community string
 var oid string
 
 // RootCmd represents the base command when called without any subcommands
@@ -54,9 +52,9 @@ func init() {
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
 
-	RootCmd.PersistentFlags().StringVarP(&cfgFile, "settings", "s", "", "config file (default is $HOME/.inquirer.json)")
-	RootCmd.PersistentFlags().StringVarP(&remoteIP, "ip", "i", "127.0.0.1", "remote host to query")
-	RootCmd.PersistentFlags().StringVarP(&community, "community", "c", "Public", "remote host to query")
+	RootCmd.PersistentFlags().StringVarP(&cfgFile, "settings", "s", "", "config file (default is $HOME/)")
+	RootCmd.PersistentFlags().StringP("ip", "i", "127.0.0.1", "remote host to query")
+	RootCmd.PersistentFlags().StringP("community", "c", "Public", "remote host to query")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 }
@@ -77,6 +75,7 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
+		viper.WatchConfig()
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }

@@ -21,6 +21,7 @@ import (
 
 	"github.com/kkirsche/gosnmp"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // bulkwalkCmd represents the bulkwalk command
@@ -38,7 +39,10 @@ could use this command to do so.`,
 			os.Exit(1)
 		}
 
-		snmp, err := gosnmp.Connect(remoteIP, community, gosnmp.Version2c, 50)
+		snmp, err := gosnmp.Connect(viper.GetString("ip"),
+			viper.GetString("community"),
+			gosnmp.Version2c,
+			50)
 		if err != nil {
 			log.Fatal(err.Error())
 		}

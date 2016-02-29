@@ -15,56 +15,32 @@
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"os"
-
-	"github.com/kkirsche/gosnmp"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-// getCmd represents the retrieveOID command
-var getCmd = &cobra.Command{
-	Use:   "get",
-	Short: "Retrieve the value of a specific OID",
-	Long: `Retrieves the value of a specific object identifier (OID) from the
-remote host.`,
+// cronCmd represents the cron command
+var cronCmd = &cobra.Command{
+	Use:   "cron",
+	Short: "cron allows for tasks to be programmed with times",
+	Long: `cron should be used by with the operating system's cron tool to
+execute a pre-programmed job via SNMP. This command loads from the config file
+only and does not accept the command line arguments`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if oid == "" {
-			log.Fatal("Please provide an OID to retrieve")
-			os.Exit(1)
-		}
-
-		snmp, err := gosnmp.Connect(viper.GetString("ip"),
-			viper.GetString("community"),
-			gosnmp.Version2c,
-			50)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		result, err := snmp.Get(oid)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		for _, item := range result.Variables {
-			fmt.Println("Name: ", item.Name, " Type: ", item.Type, " Value: ", item.Value)
-		}
+		cmd.Help()
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(getCmd)
-	getCmd.PersistentFlags().StringVarP(&oid, "oid", "o", "", "The OID to retrieve")
+	RootCmd.AddCommand(cronCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// getCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// cronCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// cronCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 }
