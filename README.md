@@ -1,7 +1,7 @@
-# inquirer
+# Inquirer
 Easy to use / configure SNMP poller written in Golang. Configurable using JSON like so:
 
-```
+```json
 {
   "ip": "127.0.0.1",
   "community": "Example-SNMP-Community-String",
@@ -35,7 +35,7 @@ Easy to use / configure SNMP poller written in Golang. Configurable using JSON l
       ]
     }
   }
-} 
+}
 ```
 
 This will query `127.0.0.1` using the community string `Example-SNMP-Community-String` for the OID's provided in `get`, `getbulk`, and `bulkwalk`. This file by default should be stored in `$HOME/.inquirer.json` but can be adjusted with the `--settings` / `-s` command line arguments.
