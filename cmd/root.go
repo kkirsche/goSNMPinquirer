@@ -52,7 +52,7 @@ func init() {
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
 
-	RootCmd.PersistentFlags().StringVarP(&cfgFile, "settings", "s", "", "config file (default is $HOME/)")
+	RootCmd.PersistentFlags().StringVarP(&cfgFile, "settings", "s", "", "config file (default is $HOME/.inquirer.json)")
 	RootCmd.PersistentFlags().StringP("ip", "i", "127.0.0.1", "remote host to query")
 	RootCmd.PersistentFlags().StringP("community", "c", "Public", "remote host to query")
 	// Cobra also supports local flags, which will only run
