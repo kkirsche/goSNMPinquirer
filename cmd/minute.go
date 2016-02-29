@@ -27,13 +27,9 @@ import (
 // minuteCmd represents the minute command
 var minuteCmd = &cobra.Command{
 	Use:   "minute",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "execute the cron job. For use once per minute",
+	Long: `A job which should be executed once per minute. With crontab, this would
+be executed using either the @every_minute string or the crontab definition "*/1 * * * *"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		snmp, err := gosnmp.Connect(viper.GetString("ip"), viper.GetString("community"), gosnmp.Version2c, 50)
 		if err != nil {
