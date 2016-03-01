@@ -79,7 +79,8 @@ func initConfig() {
 	viper.BindPFlag("community", RootCmd.Flags().Lookup("community"))
 
 	viper.SetDefault("cron.save_via", "stdout")
-	viper.SetDefault("cron.save_file", "")
+	viper.SetDefault("cron.save_file_path", "")
+	viper.SetDefault("cron.save_filename", "results")
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
@@ -93,7 +94,10 @@ func writeToOutputMethod(v ...interface{}) {
 	case "stdout":
 		fmt.Print(v...)
 	case "file":
-		fmt.Fprint(file, v...)
+		_, err := fmt.Fprint(file, v...)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
 	case "syslog":
 		compoundString := fmt.Sprintf("%v", v...)
 		err := syslogger.Notice(compoundString)

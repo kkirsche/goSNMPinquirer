@@ -45,9 +45,9 @@ IP and Community String`,
 		saveMethod = strings.ToLower(viper.GetString("cron.save_via"))
 		switch saveMethod {
 		case "file":
-			savePath := viper.GetString("cron.save_file")
+			savePath := viper.GetString("cron.save_filepath")
 			if savePath != "" {
-				file, err = os.Create(savePath)
+				file, err = os.Create(savePath + viper.GetString("cron.save_filename") + time.Now().UTC().Format(time.RFC3339) + "-daily.csv")
 				if err != nil {
 					log.Fatal(err.Error())
 				}
