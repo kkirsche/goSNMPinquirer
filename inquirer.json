@@ -2,6 +2,8 @@
   "ip": "127.0.0.1",
   "community": "Example-SNMP-Community-String",
   "cron": {
+    "save_via": "syslog",
+    "save_file": "/Users/exampleUser/Desktop/cronResult.csv",
     "minute": {
       "get": [".1.3.6.1.2.1.1.5.0"],
       "get_readable": ["SNMPv2-MIB::sysName"],
@@ -31,4 +33,4 @@
       ]
     }
   }
-} 
+}
