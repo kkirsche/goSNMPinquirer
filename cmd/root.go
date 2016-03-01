@@ -16,6 +16,8 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"log/syslog"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -24,6 +26,7 @@ import (
 
 var cfgFile string
 var oid string
+var syslogger *syslog.Writer
 var saveMethod string
 var file *os.File
 
@@ -91,5 +94,13 @@ func writeToOutputMethod(v ...interface{}) {
 		fmt.Print(v...)
 	case "file":
 		fmt.Fprint(file, v...)
+	case "syslog":
+		compoundString := fmt.Sprintf("%v", v...)
+		err := syslogger.Notice(compoundString)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	default:
+		fmt.Print(v...)
 	}
 }

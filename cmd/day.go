@@ -15,7 +15,9 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
+	"log/syslog"
 	"os"
 	"strings"
 	"time"
@@ -41,7 +43,8 @@ IP and Community String`,
 		}
 
 		saveMethod = strings.ToLower(viper.GetString("cron.save_via"))
-		if saveMethod == "file" {
+		switch saveMethod {
+		case "file":
 			savePath := viper.GetString("cron.save_file")
 			if savePath != "" {
 				file, err = os.Create(savePath)
@@ -49,10 +52,16 @@ IP and Community String`,
 					log.Fatal(err.Error())
 				}
 			}
+		case "syslog":
+			syslogger, err = syslog.New(syslog.LOG_INFO, "Inquirer | Day")
+			if err != nil {
+				syslogger.Err(err.Error())
+				log.Fatal(err.Error())
+			}
 		}
 
+		var line string
 		var hostname string
-
 		getValues := viper.GetStringSlice("cron.day.get")
 		for _, oid := range getValues {
 			pdu, err := snmp.Get(oid)
@@ -60,18 +69,16 @@ IP and Community String`,
 				log.Fatal(err.Error())
 			}
 
-			writeToOutputMethod(time.Now().UTC().Format(time.RFC3339Nano))
-			writeToOutputMethod(",", snmp.Target)
+			line = time.Now().UTC().Format(time.RFC3339Nano) + "," + snmp.Target
 			if hostname != "" {
-				writeToOutputMethod(",", hostname)
+				line += "," + hostname
 			}
 
 			for _, variable := range pdu.Variables {
-				writeToOutputMethod(",", variable.Name)
-				writeToOutputMethod(",", variable.Value)
+				line += "," + variable.Name + "," + fmt.Sprintf("%v", variable.Value)
 			}
 
-			writeToOutputMethod("\n")
+			writeToOutputMethod(line + "\n")
 
 			if oid == ".1.3.6.1.2.1.1.5.0" {
 				hostname = pdu.Variables[0].Value.(string)
@@ -85,17 +92,15 @@ IP and Community String`,
 				log.Fatal(err.Error())
 			}
 
-			writeToOutputMethod(time.Now().UTC().Format(time.RFC3339Nano))
-			writeToOutputMethod(",", snmp.Target)
+			line = time.Now().UTC().Format(time.RFC3339Nano) + "," + snmp.Target
 			if hostname != "" {
-				writeToOutputMethod(",", hostname)
+				line += "," + hostname
 			}
 
 			for _, pdu := range pdu.Variables {
-				writeToOutputMethod(",", pdu.Name)
-				writeToOutputMethod(",", pdu.Value)
+				line += "," + pdu.Name + "," + fmt.Sprintf("%v", pdu.Value)
 			}
-			writeToOutputMethod("\n")
+			writeToOutputMethod(line + "\n")
 		}
 
 		bulkwalkValues := viper.GetStringSlice("cron.day.bulkwalk")
@@ -118,20 +123,18 @@ IP and Community String`,
 		}
 
 		for i := 0; i < lengthOfValues; i++ {
-			writeToOutputMethod(time.Now().UTC().Format(time.RFC3339Nano))
-			writeToOutputMethod(",", snmp.Target)
+			line = time.Now().UTC().Format(time.RFC3339Nano) + "," + snmp.Target
 			if hostname != "" {
-				writeToOutputMethod(",", hostname)
+				line += "," + hostname
 			}
 			for _, oid := range bulkwalkValues {
 				oidLength := len(results[oid]) - 1
 				if oidLength >= i {
 					pdu := results[oid][i]
-					writeToOutputMethod(",", pdu.Name)
-					writeToOutputMethod(",", pdu.Value)
+					line += "," + pdu.Name + "," + fmt.Sprintf("%v", pdu.Value)
 				}
 			}
-			writeToOutputMethod("\n")
+			writeToOutputMethod(line + "\n")
 		}
 	},
 }
