@@ -14,7 +14,7 @@
 
 package main
 
-import "ni.vzbi.com/stash/scm/ncsddos/inquirer.git/cmd"
+import "github.com/kkirsche/goSNMPinquirer/cmd"
 
 func main() {
 	cmd.Execute()
