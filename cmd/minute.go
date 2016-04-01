@@ -37,11 +37,8 @@ be executed using either the @every_minute string or the crontab definition
 $HOME/.inquirer.json) only and does not accept command line arguments except for
 IP and Community String`,
 	Run: func(cmd *cobra.Command, args []string) {
-		snmp, err := gosnmp.Connect(viper.GetString("ip"), viper.GetString("community"), gosnmp.Version2c, 50)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
 
+		var err error
 		saveMethod = strings.ToLower(viper.GetString("cron.save_via"))
 		switch saveMethod {
 		case "file":
@@ -55,9 +52,14 @@ IP and Community String`,
 		case "syslog":
 			syslogger, err = syslog.New(syslog.LOG_INFO, "Inquirer | Minute")
 			if err != nil {
-				syslogger.Err(err.Error())
 				log.Fatal(err.Error())
 			}
+		}
+
+		snmp, err := gosnmp.Connect(viper.GetString("ip"), viper.GetString("community"), gosnmp.Version2c, 30)
+		if err != nil {
+			syslogger.Err(err.Error())
+			log.Fatal(err.Error())
 		}
 
 		results := make(map[string][]gosnmp.SnmpPDU)
@@ -69,6 +71,7 @@ IP and Community String`,
 		for _, oid := range getValues {
 			pdu, err := snmp.Get(oid)
 			if err != nil {
+				syslogger.Err(err.Error())
 				log.Fatal(err.Error())
 			}
 
@@ -92,6 +95,7 @@ IP and Community String`,
 		for _, oid := range bulkwalkValues {
 			pdus, err := snmp.BulkWalk(100, oid)
 			if err != nil {
+				syslogger.Err(err.Error())
 				log.Println("Error: ", err.Error())
 			}
 

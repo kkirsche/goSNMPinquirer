@@ -27,11 +27,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-// dayCmd represents the day command
-var dayCmd = &cobra.Command{
-	Use:   "day",
-	Short: "execute the cron job. For use once per day",
-	Long: `A job which should be executed once per day. With crontab, this would
+// hourCmd represents the hour command
+var hourCmd = &cobra.Command{
+	Use:   "hour",
+	Short: "execute the cron job. For use once per hour",
+	Long: `A job which should be executed once per hour. With crontab, this would
 be executed using either the @daily string or the crontab definition "0 0	* * *".
 This command loads from the config file (by default located at
 $HOME/.inquirer.json) only and does not accept command line arguments except for
@@ -49,7 +49,7 @@ IP and Community String`,
 				}
 			}
 		case "syslog":
-			syslogger, err = syslog.New(syslog.LOG_INFO, "Inquirer | Day")
+			syslogger, err = syslog.New(syslog.LOG_INFO, "Inquirer | Hour")
 			if err != nil {
 				log.Fatal(err.Error())
 			}
@@ -63,7 +63,7 @@ IP and Community String`,
 
 		var line string
 		var hostname string
-		getValues := viper.GetStringSlice("cron.day.get")
+		getValues := viper.GetStringSlice("cron.hour.get")
 		for _, oid := range getValues {
 			pdu, err := snmp.Get(oid)
 			if err != nil {
@@ -87,7 +87,7 @@ IP and Community String`,
 			}
 		}
 
-		getBulkValues := viper.GetStringSlice("cron.day.getbulk")
+		getBulkValues := viper.GetStringSlice("cron.hour.getbulk")
 		for _, oid := range getBulkValues {
 			pdu, err := snmp.GetBulk(0, 100, oid)
 			if err != nil {
@@ -106,7 +106,7 @@ IP and Community String`,
 			writeToOutputMethod(line + "\n")
 		}
 
-		bulkwalkValues := viper.GetStringSlice("cron.day.bulkwalk")
+		bulkwalkValues := viper.GetStringSlice("cron.hour.bulkwalk")
 		results := make(map[string][]gosnmp.SnmpPDU)
 		for _, oid := range bulkwalkValues {
 			pdus, err := snmp.BulkWalk(100, oid)
@@ -144,15 +144,15 @@ IP and Community String`,
 }
 
 func init() {
-	cronCmd.AddCommand(dayCmd)
+	cronCmd.AddCommand(hourCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// dayCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// hourCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// dayCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// hourCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
